@@ -1,3 +1,95 @@
-<!-- Start of HTML Script -->
-<iframe src="https://cappertek.com/xAjaxEventsCarouselX.asp?ref=widget" frameborder="0" marginwidth="0" marginheight="0" scrolling="yes" style="width: 300px; height: 540px; margin: 0px; padding: 0px; background-color: white;"></iframe>
-<!-- End of HTML Script -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vertical Scroll Odds</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <style>
+    body { margin: 0; background: black; }
+
+    #viewport {
+      width: 100%;
+      height: 90px;       /* visible height */
+      overflow: hidden;
+      background: white;
+      position: relative;
+    }
+
+    #mover {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      will-change: transform;
+    }
+
+    iframe {
+      width: 100%;
+      height: 900px;      /* MUST be taller than viewport to “scroll” */
+      border: 0;
+      display: block;
+      background: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="viewport">
+    <div id="mover">
+      <iframe
+        src="https://cappertek.com/xAjaxEventsCarousel.asp?ref=widget"
+        scrolling="no"
+        frameborder="0"
+      ></iframe>
+    </div>
+  </div>
+
+  <script>
+    const speed = 0.6;       // lower = slower
+    const pauseBottom = 1500;
+    const pauseTop = 800;
+
+    const viewport = document.getElementById("viewport");
+    const mover = document.getElementById("mover");
+    const iframe = mover.querySelector("iframe");
+
+    let y = 0;
+    let maxScroll = 0;
+    let paused = false;
+
+    function recalc() {
+      const iframeHeight = iframe.getBoundingClientRect().height;
+      const viewportHeight = viewport.getBoundingClientRect().height;
+      maxScroll = Math.max(0, iframeHeight - viewportHeight);
+      y = 0;
+      mover.style.transform = `translateY(0px)`;
+    }
+
+    iframe.addEventListener("load", recalc);
+    window.addEventListener("resize", recalc);
+
+    function loop() {
+      if (!paused && maxScroll > 0) {
+        y += speed;
+        if (y >= maxScroll) {
+          y = maxScroll;
+          paused = true;
+
+          setTimeout(() => {
+            y = 0;
+            mover.style.transform = `translateY(0px)`;
+            setTimeout(() => paused = false, pauseTop);
+          }, pauseBottom);
+        } else {
+          mover.style.transform = `translateY(${-y}px)`;
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
