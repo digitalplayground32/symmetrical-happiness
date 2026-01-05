@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <title>Live Odds Ticker</title>
+
+  <!-- Lock canvas size for signage -->
   <meta name="viewport" content="width=1920, height=270, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
   <style>
-    /* Exact signage canvas */
     html, body {
       margin: 0;
       width: 1920px;
@@ -18,19 +19,27 @@
       background: black;
     }
 
-    /* Bottom band */
+    /* Bottom ticker container */
     #ticker-band {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 1920px;
-      height: 270px;          /* CapperTek native height */
+      height: 270px;
       background: white;
+      overflow: hidden;
     }
 
+    /* Wrapper that gets scaled */
+    #scale-wrap {
+      transform-origin: bottom left;
+      will-change: transform;
+    }
+
+    /* CapperTek renders at its native size */
     iframe {
       width: 1920px;
-      height: 270px;
+      height: 90px; /* native height */
       border: 0;
       display: block;
       background: white;
@@ -40,24 +49,38 @@
 
 <body>
   <div id="ticker-band">
-    <!-- CapperTek horizontal ticker -->
-    <iframe
-      src="https://cappertek.com/xAjaxEventsCarousel.asp?ref=widget"
-      frameborder="0"
-      marginwidth="0"
-      marginheight="0"
-      scrolling="no"
-      style="width: 1920px; height: 270px; margin: 0; padding: 0; background-color: white;">
-    </iframe>
+    <div id="scale-wrap">
+      <!-- CapperTek horizontal ticker (unchanged behavior) -->
+      <iframe
+        src="https://cappertek.com/xAjaxEventsCarousel.asp?ref=widget"
+        frameborder="0"
+        marginwidth="0"
+        marginheight="0"
+        scrolling="no"
+        style="width: 1920px; height: 90px; margin: 0; padding: 0; background-color: white;">
+      </iframe>
+    </div>
   </div>
 
   <script>
-    /* Optional: refresh periodically for 24/7 signage stability */
-    const reloadMinutes = 60; // set to 0 to disable
+    // Auto-fit the ticker to fill the vertical canvas
+    const nativeHeight = 90;     // CapperTek ticker native height
+    const targetHeight = 270;    // Signage canvas height
 
+    const scale = targetHeight / nativeHeight;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const wrap = document.getElementById("scale-wrap");
+      wrap.style.transform = `scale(${scale})`;
+    });
+
+    // Optional: periodic reload for long-running signage
+    const reloadMinutes = 60; // set to 0 to disable
     if (reloadMinutes > 0) {
       setTimeout(() => location.reload(), reloadMinutes * 60 * 1000);
     }
   </script>
 </body>
+</html>
+
 </html>
