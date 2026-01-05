@@ -2,117 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Odds Widget Scroll</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Odds Ticker</title>
+  <meta name="viewport" content="width=1920, height=270, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
   <style>
-    body {
+    /* Exact signage canvas */
+    html, body {
       margin: 0;
+      width: 1920px;
+      height: 270px;
+      overflow: hidden;
       background: black;
-      height: 100vh;
-      display: grid;
-      place-items: center; /* center the widget on screen */
     }
 
-    /* Visible window the signage player shows */
-    #viewport {
-      width: 300px;       /* match iframe inline width */
-      height: 540px;      /* match iframe inline height */
-      overflow: hidden;   /* crop to window */
-      background: white;
-      position: relative;
-    }
-
-    /* We move the iframe (the whole widget) behind the window */
-    #mover {
+    /* Bottom band */
+    #ticker-band {
       position: absolute;
-      top: 0;
+      bottom: 0;
       left: 0;
-      width: 300px;
-      will-change: transform, opacity;
-      transition: opacity 350ms linear;
-      opacity: 1;
+      width: 1920px;
+      height: 90px;          /* CapperTek native height */
+      background: white;
+    }
+
+    iframe {
+      width: 1920px;
+      height: 90px;
+      border: 0;
+      display: block;
+      background: white;
     }
   </style>
 </head>
 
 <body>
-  <div id="viewport">
-    <div id="mover">
-      <!-- DO NOT CHANGE THIS IFRAME -->
-      <iframe src="https://cappertek.com/xAjaxEventsCarouselX.asp?ref=widget" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="width: 300px; height: 540px; margin: 0px; padding: 0px; background-color: white;"></iframe>
-      <!-- DO NOT CHANGE THIS IFRAME -->
-    </div>
+  <div id="ticker-band">
+    <!-- CapperTek horizontal ticker -->
+    <iframe
+      src="https://cappertek.com/xAjaxEventsCarousel.asp?ref=widget"
+      frameborder="0"
+      marginwidth="0"
+      marginheight="0"
+      scrolling="no"
+      style="width: 1920px; height: 90px; margin: 0; padding: 0; background-color: white;">
+    </iframe>
   </div>
 
   <script>
-    // TUNING
-    const speedPxPerFrame = 0.6; // try 0.3 (slower) or 1.0 (faster)
-    const pauseAtBottomMs = 2500;
-    const pauseAtTopMs = 800;
+    /* Optional: refresh periodically for 24/7 signage stability */
+    const reloadMinutes = 60; // set to 0 to disable
 
-    const viewport = document.getElementById("viewport");
-    const mover = document.getElementById("mover");
-    const iframe = mover.querySelector("iframe");
-
-    let y = 0;
-    let maxScroll = 0;
-    let paused = false;
-
-    function computeMaxScroll() {
-      // Since we can't read cross-domain content height, we "pan" by using a virtual travel distance.
-      // Set this to how far you want to pan to reveal more of the widget content.
-      //
-      // Start with 800-1400. Increase if you want to reveal more "below" content.
-      const VIRTUAL_TRAVEL_PX = 1200;
-
-      // Ensure we never go negative
-      maxScroll = Math.max(0, VIRTUAL_TRAVEL_PX);
-      y = 0;
-      mover.style.transform = "translateY(0px)";
-      mover.style.opacity = "1";
+    if (reloadMinutes > 0) {
+      setTimeout(() => location.reload(), reloadMinutes * 60 * 1000);
     }
-
-    // Recalculate on load/resize. (Load fires even though content is cross-domain.)
-    iframe.addEventListener("load", computeMaxScroll);
-    window.addEventListener("resize", computeMaxScroll);
-
-    function loop() {
-      if (!paused && maxScroll > 0) {
-        y += speedPxPerFrame;
-
-        if (y >= maxScroll) {
-          y = maxScroll;
-          mover.style.transform = `translateY(${-y}px)`;
-          paused = true;
-
-          // Pause at bottom, fade out, snap to top, fade in, pause, then resume
-          setTimeout(() => {
-            mover.style.opacity = "0";
-
-            setTimeout(() => {
-              y = 0;
-              mover.style.transform = "translateY(0px)";
-              mover.style.opacity = "1";
-
-              setTimeout(() => { paused = false; }, pauseAtTopMs);
-            }, 400);
-          }, pauseAtBottomMs);
-
-        } else {
-          mover.style.transform = `translateY(${-y}px)`;
-        }
-      }
-
-      requestAnimationFrame(loop);
-    }
-
-    // Kick off (in case load is slow)
-    computeMaxScroll();
-    requestAnimationFrame(loop);
   </script>
 </body>
 </html>
