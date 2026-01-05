@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Odds Ticker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+  }
+
+  #ticker-container {
+    height: 90px;   /* same as iframe height */
+    overflow: hidden;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="ticker-container">
+  <iframe
+    src="https://cappertek.com/xAjaxEventsCarousel.asp?ref=widget"
+    frameborder="0"
+    scrolling="no"
+    style="width:100%; height:90px; border:0; background:white;">
+  </iframe>
+</div>
+
+<script>
+let scrollPosition = 0;
+const scrollSpeed = 0.5;   // lower = slower
+const maxScroll = 90;      // height before reset
+
+function autoScroll() {
+  scrollPosition += scrollSpeed;
+  window.scrollTo(0, scrollPosition);
+
+  if (scrollPosition >= maxScroll) {
+    setTimeout(() => {
+      scrollPosition = 0;
+      window.scrollTo(0, 0);
+    }, 2000); // pause before reset
+  }
+}
+
+setInterval(autoScroll, 30);
+</script>
+
+</body>
+</html>
