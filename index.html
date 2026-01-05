@@ -30,8 +30,12 @@
       overflow: hidden;
     }
 
-    /* Wrapper that gets scaled */
+    /* Wrapper that gets scaled vertically only */
     #scale-wrap {
+      position: absolute;
+      bottom: 0;          /* anchor the ticker to the bottom */
+      left: 0;
+      width: 1920px;
       transform-origin: bottom left;
       will-change: transform;
     }
@@ -39,7 +43,7 @@
     /* CapperTek renders at its native size */
     iframe {
       width: 1920px;
-      height: 90px; /* native height */
+      height: 90px;       /* native height of the CapperTek ticker */
       border: 0;
       display: block;
       background: white;
@@ -50,7 +54,6 @@
 <body>
   <div id="ticker-band">
     <div id="scale-wrap">
-      <!-- CapperTek horizontal ticker (unchanged behavior) -->
       <iframe
         src="https://cappertek.com/xAjaxEventsCarousel.asp?ref=widget"
         frameborder="0"
@@ -63,24 +66,21 @@
   </div>
 
   <script>
-    // Auto-fit the ticker to fill the vertical canvas
+    // Auto-fit VERTICALLY to fill the 270px canvas (without scaling width)
     const nativeHeight = 90;     // CapperTek ticker native height
     const targetHeight = 270;    // Signage canvas height
-
-    const scale = targetHeight / nativeHeight;
+    const scaleY = targetHeight / nativeHeight;
 
     document.addEventListener("DOMContentLoaded", () => {
       const wrap = document.getElementById("scale-wrap");
-      wrap.style.transform = `scale(${scale})`;
+      wrap.style.transform = `scaleY(${scaleY})`;
     });
 
-    // Optional: periodic reload for long-running signage
+    // Optional: periodic reload for 24/7 signage stability
     const reloadMinutes = 60; // set to 0 to disable
     if (reloadMinutes > 0) {
       setTimeout(() => location.reload(), reloadMinutes * 60 * 1000);
     }
   </script>
 </body>
-</html>
-
 </html>
